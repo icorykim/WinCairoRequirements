@@ -54,24 +54,28 @@
     <Import Project="..\..\..\..\props\common.props" />
     <Import Project="..\..\..\..\props\dll.props" />
     <Import Project="..\..\..\..\props\release.props" />
+    <Import Project="..\..\..\..\props\WebKitANGLE.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="..\..\..\..\props\common_x64.props" />
     <Import Project="..\..\..\..\props\dll.props" />
     <Import Project="..\..\..\..\props\release.props" />
+    <Import Project="..\..\..\..\props\WebKitANGLE.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="..\..\..\..\props\common.props" />
     <Import Project="..\..\..\..\props\dll.props" />
     <Import Project="..\..\..\..\props\debug.props" />
+    <Import Project="..\..\..\..\props\WebKitANGLE.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="..\..\..\..\props\common_x64.props" />
     <Import Project="..\..\..\..\props\dll.props" />
     <Import Project="..\..\..\..\props\debug.props" />
+    <Import Project="..\..\..\..\props\WebKitANGLE.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
@@ -230,6 +234,7 @@ xcopy /Y /D /R "$(ProjectDir)cairo-xml.h" "$(SolutionDir)include\cairo"
     <ClCompile Include="cairo-default-context.c" />
     <ClCompile Include="cairo-deflate-stream.c" />
     <ClCompile Include="cairo-device.c" />
+    <ClCompile Include="cairo-egl-context.c" />
     <ClCompile Include="cairo-error.c" />
     <ClCompile Include="cairo-fallback-compositor.c" />
     <ClCompile Include="cairo-fixed.c" />
@@ -332,7 +337,6 @@ xcopy /Y /D /R "$(ProjectDir)cairo-xml.h" "$(SolutionDir)include\cairo"
     <ClCompile Include="cairo-unicode.c" />
     <ClCompile Include="cairo-user-font.c" />
     <ClCompile Include="cairo-version.c" />
-    <ClCompile Include="cairo-wgl-context.c" />
     <ClCompile Include="cairo-wideint.c" />
     <ClCompile Include="cairo.c" />
     <ClCompile Include="win32\cairo-win32-debug.c" />

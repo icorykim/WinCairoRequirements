@@ -465,9 +465,6 @@
     <ClCompile Include="cairo-gl-traps-compositor.c">
       <Filter>Source Files\GL</Filter>
     </ClCompile>
-    <ClCompile Include="cairo-wgl-context.c">
-      <Filter>Source Files\GL</Filter>
-    </ClCompile>
     <ClCompile Include="cairo-script-surface.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -479,6 +476,9 @@
     </ClCompile>
     <ClCompile Include="cairo-line.c">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cairo-egl-context.c">
+      <Filter>Source Files\GL</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

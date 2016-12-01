@@ -29,6 +29,10 @@
 #include "cairo/cairo-gl.h"
 #include "cairo/cairo-win32.h"
 
+#if EGL_SOFT_LINKING
+#define eglGetDisplay eglGetDisplayPtr()
+#endif
+
 #define MAX_LOADSTRING 100
 
 HINSTANCE hInst;                                // current instance
@@ -36,7 +40,13 @@ HWND hMainWnd;
 WNDPROC DefEditProc = 0;
 TCHAR szWindowClass[MAX_LOADSTRING] =  _T ("WIN_CAIRO_TEST");            // the main window class name
 HDC dc;
+#if CAIRO_HAS_WGL_FUNCTIONS
 HGLRC rc;
+#elif CAIRO_HAS_EGL_FUNCTIONS
+EGLDisplay dpy;
+EGLSurface egl;
+EGLContext ctx;
+#endif
 int LastUpdate = 0;
 int Frames = 0;
 int width = 400;
@@ -81,6 +91,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpstrCm
 
     dc = ::GetDC (hMainWnd);
 
+#if CAIRO_HAS_WGL_FUNCTIONS
     PIXELFORMATDESCRIPTOR pfd;
     int iFormat;
  
@@ -100,11 +111,59 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpstrCm
     rc = wglCreateContext(dc);
  
     cairo_device_t* device = cairo_wgl_device_create(rc);
- 
+#elif CAIRO_HAS_EGL_FUNCTIONS
+    EGLint numConfigs;
+    EGLint majorVersion;
+    EGLint minorVersion;
+    EGLConfig config;
+    EGLint contextAttribs[] = {
+        EGL_CONTEXT_CLIENT_VERSION, 2,
+        EGL_NONE, EGL_NONE
+    };
+
+    EGLint attribList[] = {
+        EGL_RED_SIZE,       8,
+        EGL_GREEN_SIZE,     8,
+        EGL_BLUE_SIZE,      8,
+        EGL_ALPHA_SIZE,     8,
+        EGL_DEPTH_SIZE,     8,
+        EGL_STENCIL_SIZE,   EGL_DONT_CARE,
+        EGL_SAMPLE_BUFFERS, 0,
+        EGL_NONE
+    };
+
+    dpy = eglGetDisplay(dc);
+    if (dpy == EGL_NO_DISPLAY)
+        return FALSE;
+
+    if (!eglInitialize(dpy, &majorVersion, &minorVersion))
+        return FALSE;
+
+    if (!eglGetConfigs(dpy, NULL, 0, &numConfigs))
+        return FALSE;
+
+    if (!eglChooseConfig(dpy, attribList, &config, 1, &numConfigs))
+        return FALSE;
+
+    egl = eglCreateWindowSurface(dpy, config, hMainWnd, NULL);
+    if (egl == EGL_NO_SURFACE)
+        return FALSE;
+
+    ctx = eglCreateContext(dpy, config, EGL_NO_CONTEXT, contextAttribs);
+    if (ctx == EGL_NO_CONTEXT)
+        return FALSE;
+
+    cairo_device_t* device = cairo_egl_device_create(dpy, ctx);
+#endif
+
     if (cairo_device_status(device) != CAIRO_STATUS_SUCCESS)
        printf("cairo device failed with %s\n", cairo_status_to_string(cairo_device_status(device)));
  
+#if CAIRO_HAS_WGL_FUNCTIONS
     surface = cairo_gl_surface_create_for_dc(device, dc, width, height);
+#elif CAIRO_HAS_EGL_FUNCTIONS
+    surface = cairo_gl_surface_create_for_egl(device, egl, width, height);
+#endif
  
     if (cairo_surface_status(surface) != CAIRO_STATUS_SUCCESS)
         printf("cairo surface failed with %s\n", cairo_status_to_string(cairo_surface_status(surface)));
@@ -121,7 +180,11 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpstrCm
     bool running = true;
     LastUpdate = GetTickCount();
 
+#if CAIRO_HAS_WGL_FUNCTIONS
     wglMakeCurrent(dc, rc);
+#elif CAIRO_HAS_EGL_FUNCTIONS
+    eglMakeCurrent(dpy, surface, surface, ctx);
+#endif
 
     while (running)
     {
@@ -140,7 +203,11 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpstrCm
         else
         {
             render();
+#if CAIRO_HAS_WGL_FUNCTIONS
             SwapBuffers(dc);
+#elif CAIRO_HAS_EGL_FUNCTIONS
+            eglSwapBuffers(dpy, egl);
+#endif
             ::Sleep (100);
         }
     }
